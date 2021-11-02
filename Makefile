@@ -88,7 +88,7 @@ release-local-snapshot:
 .PHONY: release-local-snapshot
 
 ## Issue new release.
-new-version: vet test build
+new-version: vet
 	./scripts/release/new-version.sh
 .PHONY: new-release
 
