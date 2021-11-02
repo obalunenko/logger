@@ -12,3 +12,8 @@
 *.out
 
 dist/
+
+.idea/
+.vscode/
+coverage/
+.cover/
