@@ -5,5 +5,4 @@
 
 
 # logger
-Configurable structure levelled logger that is stored in context with and adapter interface for logger libraries
-so that we not depend on any of them directly.
+A configurable structure leveled logger stored in context with an adapter interface for logger libraries allows not to depend on any of them directly.
