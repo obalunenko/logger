@@ -39,6 +39,7 @@ type Runner struct {
 	Active      bool   `json:"active"`
 	IsShared    bool   `json:"is_shared"`
 	IPAddress   string `json:"ip_address"`
+	RunnerType  string `json:"runner_type"`
 	Name        string `json:"name"`
 	Online      bool   `json:"online"`
 	Status      string `json:"status"`
@@ -55,6 +56,7 @@ type RunnerDetails struct {
 	ID           int        `json:"id"`
 	IPAddress    string     `json:"ip_address"`
 	IsShared     bool       `json:"is_shared"`
+	RunnerType   string     `json:"runner_type"`
 	ContactedAt  *time.Time `json:"contacted_at"`
 	Name         string     `json:"name"`
 	Online       bool       `json:"online"`
@@ -88,10 +90,10 @@ type RunnerDetails struct {
 // https://docs.gitlab.com/ce/api/runners.html#list-owned-runners
 type ListRunnersOptions struct {
 	ListOptions
-	Scope   *string  `url:"scope,omitempty" json:"scope,omitempty"`
-	Type    *string  `url:"type,omitempty" json:"type,omitempty"`
-	Status  *string  `url:"status,omitempty" json:"status,omitempty"`
-	TagList []string `url:"tag_list,comma,omitempty" json:"tag_list,omitempty"`
+	Scope   *string   `url:"scope,omitempty" json:"scope,omitempty"`
+	Type    *string   `url:"type,omitempty" json:"type,omitempty"`
+	Status  *string   `url:"status,omitempty" json:"status,omitempty"`
+	TagList *[]string `url:"tag_list,comma,omitempty" json:"tag_list,omitempty"`
 }
 
 // ListRunners gets a list of runners accessible by the authenticated user.
@@ -163,13 +165,13 @@ func (s *RunnersService) GetRunnerDetails(rid interface{}, options ...RequestOpt
 // GitLab API docs:
 // https://docs.gitlab.com/ce/api/runners.html#update-runner-39-s-details
 type UpdateRunnerDetailsOptions struct {
-	Description    *string  `url:"description,omitempty" json:"description,omitempty"`
-	Active         *bool    `url:"active,omitempty" json:"active,omitempty"`
-	TagList        []string `url:"tag_list[],omitempty" json:"tag_list,omitempty"`
-	RunUntagged    *bool    `url:"run_untagged,omitempty" json:"run_untagged,omitempty"`
-	Locked         *bool    `url:"locked,omitempty" json:"locked,omitempty"`
-	AccessLevel    *string  `url:"access_level,omitempty" json:"access_level,omitempty"`
-	MaximumTimeout *int     `url:"maximum_timeout,omitempty" json:"maximum_timeout,omitempty"`
+	Description    *string   `url:"description,omitempty" json:"description,omitempty"`
+	Active         *bool     `url:"active,omitempty" json:"active,omitempty"`
+	TagList        *[]string `url:"tag_list[],omitempty" json:"tag_list,omitempty"`
+	RunUntagged    *bool     `url:"run_untagged,omitempty" json:"run_untagged,omitempty"`
+	Locked         *bool     `url:"locked,omitempty" json:"locked,omitempty"`
+	AccessLevel    *string   `url:"access_level,omitempty" json:"access_level,omitempty"`
+	MaximumTimeout *int      `url:"maximum_timeout,omitempty" json:"maximum_timeout,omitempty"`
 }
 
 // UpdateRunnerDetails updates details for a given runner.
@@ -269,7 +271,7 @@ func (s *RunnersService) ListProjectRunners(pid interface{}, opt *ListProjectRun
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/runners", pathEscape(project))
+	u := fmt.Sprintf("projects/%s/runners", PathEscape(project))
 
 	req, err := s.client.NewRequest(http.MethodGet, u, opt, options)
 	if err != nil {
@@ -303,7 +305,7 @@ func (s *RunnersService) EnableProjectRunner(pid interface{}, opt *EnableProject
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("projects/%s/runners", pathEscape(project))
+	u := fmt.Sprintf("projects/%s/runners", PathEscape(project))
 
 	req, err := s.client.NewRequest(http.MethodPost, u, opt, options)
 	if err != nil {
@@ -328,7 +330,7 @@ func (s *RunnersService) DisableProjectRunner(pid interface{}, runner int, optio
 	if err != nil {
 		return nil, err
 	}
-	u := fmt.Sprintf("projects/%s/runners/%d", pathEscape(project), runner)
+	u := fmt.Sprintf("projects/%s/runners/%d", PathEscape(project), runner)
 
 	req, err := s.client.NewRequest(http.MethodDelete, u, nil, options)
 	if err != nil {
@@ -344,9 +346,9 @@ func (s *RunnersService) DisableProjectRunner(pid interface{}, runner int, optio
 // https://docs.gitlab.com/ee/api/runners.html#list-groups-runners
 type ListGroupsRunnersOptions struct {
 	ListOptions
-	Type    *string  `url:"type,omitempty" json:"type,omitempty"`
-	Status  *string  `url:"status,omitempty" json:"status,omitempty"`
-	TagList []string `url:"tag_list,comma,omitempty" json:"tag_list,omitempty"`
+	Type    *string   `url:"type,omitempty" json:"type,omitempty"`
+	Status  *string   `url:"status,omitempty" json:"status,omitempty"`
+	TagList *[]string `url:"tag_list,comma,omitempty" json:"tag_list,omitempty"`
 }
 
 // ListGroupsRunners lists all runners (specific and shared) available in the
@@ -360,7 +362,7 @@ func (s *RunnersService) ListGroupsRunners(gid interface{}, opt *ListGroupsRunne
 	if err != nil {
 		return nil, nil, err
 	}
-	u := fmt.Sprintf("groups/%s/runners", pathEscape(group))
+	u := fmt.Sprintf("groups/%s/runners", PathEscape(group))
 
 	req, err := s.client.NewRequest(http.MethodGet, u, opt, options)
 	if err != nil {
@@ -388,7 +390,7 @@ type RegisterNewRunnerOptions struct {
 	Active         *bool                         `url:"active,omitempty" json:"active,omitempty"`
 	Locked         *bool                         `url:"locked,omitempty" json:"locked,omitempty"`
 	RunUntagged    *bool                         `url:"run_untagged,omitempty" json:"run_untagged,omitempty"`
-	TagList        []string                      `url:"tag_list[],omitempty" json:"tag_list,omitempty"`
+	TagList        *[]string                     `url:"tag_list[],omitempty" json:"tag_list,omitempty"`
 	MaximumTimeout *int                          `url:"maximum_timeout,omitempty" json:"maximum_timeout,omitempty"`
 }
 

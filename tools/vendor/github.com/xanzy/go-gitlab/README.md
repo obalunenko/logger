@@ -9,14 +9,14 @@ A GitLab API client enabling Go programs to interact with GitLab in a simple and
 
 ## NOTE
 
-Release v0.6.0 (released on 25-08-2017) no longer supports the older V3 Gitlab API. If
+Release v0.6.0 (released on 25-08-2017) no longer supports the older V3 GitLab API. If
 you need V3 support, please use the `f-api-v3` branch. This release contains some backwards
-incompatible changes that were needed to fully support the V4 Gitlab API.
+incompatible changes that were needed to fully support the V4 GitLab API.
 
 ## Coverage
 
-This API client package covers most of the existing Gitlab API calls and is updated regularly
-to add new and/or missing endpoints. Currently the following services are supported:
+This API client package covers most of the existing GitLab API calls and is updated regularly
+to add new and/or missing endpoints. Currently, the following services are supported:
 
 - [x] Applications
 - [x] Award Emojis
@@ -34,6 +34,7 @@ to add new and/or missing endpoints. Currently the following services are suppor
 - [x] Events
 - [x] Feature Flags
 - [ ] Geo Nodes
+- [x] Generic Packages
 - [x] GitLab CI Config Templates
 - [x] Gitignores Templates
 - [x] Group Access Requests
@@ -51,17 +52,21 @@ to add new and/or missing endpoints. Currently the following services are suppor
 - [x] Keys
 - [x] Labels
 - [x] License
+- [x] Markdown
 - [x] Merge Request Approvals
 - [x] Merge Requests
 - [x] Namespaces
 - [x] Notes (comments)
 - [x] Notification Settings
 - [x] Open Source License Templates
+- [x] Packages
+- [x] Pages
 - [x] Pages Domains
 - [x] Personal Access Tokens
 - [x] Pipeline Schedules
 - [x] Pipeline Triggers
 - [x] Pipelines
+- [x] Plan limits
 - [x] Project Access Requests
 - [x] Project Badges
 - [x] Project Clusters
@@ -76,6 +81,7 @@ to add new and/or missing endpoints. Currently the following services are suppor
 - [x] Protected Tags
 - [x] Repositories
 - [x] Repository Files
+- [x] Repository Submodules
 - [x] Runners
 - [x] Search
 - [x] Services

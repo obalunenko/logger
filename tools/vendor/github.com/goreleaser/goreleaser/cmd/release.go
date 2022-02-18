@@ -13,45 +13,46 @@ import (
 	"github.com/goreleaser/goreleaser/internal/pipe/git"
 	"github.com/goreleaser/goreleaser/internal/pipeline"
 	"github.com/goreleaser/goreleaser/pkg/context"
-	"github.com/spf13/cobra"
+	"github.com/muesli/coral"
 )
 
 type releaseCmd struct {
-	cmd  *cobra.Command
+	cmd  *coral.Command
 	opts releaseOpts
 }
 
 type releaseOpts struct {
-	config            string
-	releaseNotesFile  string
-	releaseNotesTmpl  string
-	releaseHeaderFile string
-	releaseHeaderTmpl string
-	releaseFooterFile string
-	releaseFooterTmpl string
-	autoSnapshot      bool
-	snapshot          bool
-	skipPublish       bool
-	skipSign          bool
-	skipValidate      bool
-	skipAnnounce      bool
-	rmDist            bool
-	deprecated        bool
-	parallelism       int
-	timeout           time.Duration
+	config             string
+	releaseNotesFile   string
+	releaseNotesTmpl   string
+	releaseHeaderFile  string
+	releaseHeaderTmpl  string
+	releaseFooterFile  string
+	releaseFooterTmpl  string
+	autoSnapshot       bool
+	snapshot           bool
+	skipPublish        bool
+	skipSign           bool
+	skipValidate       bool
+	skipAnnounce       bool
+	skipSBOMCataloging bool
+	rmDist             bool
+	deprecated         bool
+	parallelism        int
+	timeout            time.Duration
 }
 
 func newReleaseCmd() *releaseCmd {
 	root := &releaseCmd{}
 	// nolint: dupl
-	cmd := &cobra.Command{
+	cmd := &coral.Command{
 		Use:           "release",
 		Aliases:       []string{"r"},
 		Short:         "Releases the current project",
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Args:          cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:          coral.NoArgs,
+		RunE: func(cmd *coral.Command, args []string) error {
 			start := time.Now()
 
 			log.Infof(color.New(color.Bold).Sprint("releasing..."))
@@ -71,7 +72,7 @@ func newReleaseCmd() *releaseCmd {
 	}
 
 	cmd.Flags().StringVarP(&root.opts.config, "config", "f", "", "Load configuration from file")
-	cmd.Flags().StringVar(&root.opts.releaseNotesFile, "release-notes", "", "Load custom release notes from a markdown file")
+	cmd.Flags().StringVar(&root.opts.releaseNotesFile, "release-notes", "", "Load custom release notes from a markdown file (will skip GoReleaser changelog generation)")
 	cmd.Flags().StringVar(&root.opts.releaseHeaderFile, "release-header", "", "Load custom release notes header from a markdown file")
 	cmd.Flags().StringVar(&root.opts.releaseFooterFile, "release-footer", "", "Load custom release notes footer from a markdown file")
 	cmd.Flags().StringVar(&root.opts.releaseNotesTmpl, "release-notes-tmpl", "", "Load custom release notes from a templated markdown file (overrides --release-notes)")
@@ -82,6 +83,7 @@ func newReleaseCmd() *releaseCmd {
 	cmd.Flags().BoolVar(&root.opts.skipPublish, "skip-publish", false, "Skips publishing artifacts")
 	cmd.Flags().BoolVar(&root.opts.skipAnnounce, "skip-announce", false, "Skips announcing releases (implies --skip-validate)")
 	cmd.Flags().BoolVar(&root.opts.skipSign, "skip-sign", false, "Skips signing artifacts")
+	cmd.Flags().BoolVar(&root.opts.skipSBOMCataloging, "skip-sbom", false, "Skips cataloging artifacts")
 	cmd.Flags().BoolVar(&root.opts.skipValidate, "skip-validate", false, "Skips git checks")
 	cmd.Flags().BoolVar(&root.opts.rmDist, "rm-dist", false, "Removes the dist folder")
 	cmd.Flags().IntVarP(&root.opts.parallelism, "parallelism", "p", 0, "Amount tasks to run concurrently (default: number of CPUs)")
@@ -139,6 +141,7 @@ func setupReleaseContext(ctx *context.Context, options releaseOpts) *context.Con
 	ctx.SkipAnnounce = ctx.Snapshot || options.skipPublish || options.skipAnnounce
 	ctx.SkipValidate = ctx.Snapshot || options.skipValidate
 	ctx.SkipSign = options.skipSign
+	ctx.SkipSBOMCataloging = options.skipSBOMCataloging
 	ctx.RmDist = options.rmDist
 
 	// test only
