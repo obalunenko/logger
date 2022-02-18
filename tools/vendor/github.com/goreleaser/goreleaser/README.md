@@ -9,7 +9,8 @@
 GoReleaser builds Go binaries for several platforms, creates a GitHub release and then
 pushes a Homebrew formula to a tap repository. All that wrapped in your favorite CI.
 
-This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code.
+This project adheres to the Contributor Covenant [code of conduct](https://github.com/goreleaser/.github/blob/main/CODE_OF_CONDUCT.md).
+By participating, you are expected to uphold this code.
 We appreciate your contribution. Please refer to our [contributing guidelines](CONTRIBUTING.md) for further information.
 
 For questions, support and general discussion, please use [GitHub Discussions](https://github.com/goreleaser/goreleaser/discussions);
@@ -28,7 +29,7 @@ Documentation is hosted live at https://goreleaser.com
 [![Release](https://img.shields.io/github/release/goreleaser/goreleaser.svg?style=for-the-badge)](https://github.com/goreleaser/goreleaser/releases/latest)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=for-the-badge)](/LICENSE.md)
 [![Build status](https://img.shields.io/github/workflow/status/goreleaser/goreleaser/build?style=for-the-badge)](https://github.com/goreleaser/goreleaser/actions?workflow=build)
-[![Codecov branch](https://img.shields.io/codecov/c/github/goreleaser/goreleaser/master.svg?style=for-the-badge)](https://codecov.io/gh/goreleaser/goreleaser)
+[![Codecov branch](https://img.shields.io/codecov/c/github/goreleaser/goreleaser/main.svg?style=for-the-badge)](https://codecov.io/gh/goreleaser/goreleaser)
 [![Go Doc](https://img.shields.io/badge/godoc-reference-blue.svg?style=for-the-badge)](http://godoc.org/github.com/goreleaser/goreleaser)
 [![Powered By: GoReleaser](https://img.shields.io/badge/powered%20by-goreleaser-green.svg?style=for-the-badge)](https://github.com/goreleaser)
 [![Backers on Open Collective](https://opencollective.com/goreleaser/backers/badge.svg?style=for-the-badge)](https://opencollective.com/goreleaser/backers/)

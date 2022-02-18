@@ -9,6 +9,7 @@ package context
 import (
 	ctx "context"
 	"os"
+	"runtime"
 	"strings"
 	"time"
 
@@ -20,11 +21,15 @@ import (
 type GitInfo struct {
 	Branch      string
 	CurrentTag  string
+	PreviousTag string
 	Commit      string
 	ShortCommit string
 	FullCommit  string
 	CommitDate  time.Time
 	URL         string
+	Summary     string
+	TagSubject  string
+	TagContents string
 }
 
 // Env is the environment variables.
@@ -72,6 +77,7 @@ type Context struct {
 	Git                GitInfo
 	Date               time.Time
 	Artifacts          artifact.Artifacts
+	ReleaseURL         string
 	ReleaseNotes       string
 	ReleaseNotesFile   string
 	ReleaseNotesTmpl   string
@@ -87,11 +93,18 @@ type Context struct {
 	SkipAnnounce       bool
 	SkipSign           bool
 	SkipValidate       bool
+	SkipSBOMCataloging bool
 	RmDist             bool
 	PreRelease         bool
 	Deprecated         bool
 	Parallelism        int
 	Semver             Semver
+	Runtime            Runtime
+}
+
+type Runtime struct {
+	Goos   string
+	Goarch string
 }
 
 // Semver represents a semantic version.
@@ -119,18 +132,25 @@ func Wrap(ctx ctx.Context, config config.Project) *Context {
 	return &Context{
 		Context:     ctx,
 		Config:      config,
-		Env:         splitEnv(append(os.Environ(), config.Env...)),
+		Env:         ToEnv(append(os.Environ(), config.Env...)),
 		Parallelism: 4,
 		Artifacts:   artifact.New(),
 		Date:        time.Now(),
+		Runtime: Runtime{
+			Goos:   runtime.GOOS,
+			Goarch: runtime.GOARCH,
+		},
 	}
 }
 
-func splitEnv(env []string) map[string]string {
-	// TODO: this might panic if there is no `=` sign
-	r := map[string]string{}
+// ToEnv converts a list of strings to an Env (aka a map[string]string).
+func ToEnv(env []string) Env {
+	r := Env{}
 	for _, e := range env {
 		p := strings.SplitN(e, "=", 2)
+		if len(p) != 2 || p[0] == "" {
+			continue
+		}
 		r[p[0]] = p[1]
 	}
 	return r

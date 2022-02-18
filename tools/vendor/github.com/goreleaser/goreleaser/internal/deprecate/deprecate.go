@@ -4,7 +4,9 @@ package deprecate
 
 import (
 	"bytes"
+	"io"
 	"strings"
+	"sync"
 	"text/template"
 
 	"github.com/apex/log"
@@ -15,6 +17,24 @@ import (
 
 const baseURL = "https://goreleaser.com/deprecations#"
 
+// NewWriter return a io.Writer that notices deprecations.
+func NewWriter(ctx *context.Context) io.Writer {
+	return &writer{ctx: ctx}
+}
+
+type writer struct {
+	ctx  *context.Context
+	once sync.Once
+}
+
+func (w *writer) Write(p []byte) (n int, err error) {
+	w.once.Do(func() {
+		w.ctx.Deprecated = true
+	})
+	log.Warn(color.New(color.Bold, color.FgHiYellow).Sprintf("DEPRECATED: " + strings.TrimSuffix(string(p), "\n")))
+	return len(p), nil
+}
+
 // Notice warns the user about the deprecation of the given property.
 func Notice(ctx *context.Context, property string) {
 	NoticeCustom(ctx, property, "`{{ .Property }}` should not be used anymore, check {{ .URL }} for more info")
@@ -23,10 +43,14 @@ func Notice(ctx *context.Context, property string) {
 // NoticeCustom warns the user about the deprecation of the given property.
 func NoticeCustom(ctx *context.Context, property, tmpl string) {
 	ctx.Deprecated = true
-	cli.Default.Padding += 3
-	defer func() {
-		cli.Default.Padding -= 3
-	}()
+	// XXX: this is very ugly!
+	w := log.Log.(*log.Logger).Handler.(*cli.Handler).Writer
+	handler := cli.New(w)
+	handler.Padding = cli.Default.Padding + 3
+	log := &log.Logger{
+		Handler: handler,
+		Level:   log.InfoLevel,
+	}
 	// replaces . and _ with -
 	url := baseURL + strings.NewReplacer(
 		".", "",

@@ -30,6 +30,7 @@ const (
 	version         = "Version"
 	rawVersion      = "RawVersion"
 	tag             = "Tag"
+	previousTag     = "PreviousTag"
 	branch          = "Branch"
 	commit          = "Commit"
 	shortCommit     = "ShortCommit"
@@ -37,6 +38,10 @@ const (
 	commitDate      = "CommitDate"
 	commitTimestamp = "CommitTimestamp"
 	gitURL          = "GitURL"
+	summary         = "Summary"
+	tagSubject      = "TagSubject"
+	tagContents     = "TagContents"
+	releaseURL      = "ReleaseURL"
 	major           = "Major"
 	minor           = "Minor"
 	patch           = "Patch"
@@ -47,6 +52,7 @@ const (
 	timestamp       = "Timestamp"
 	modulePath      = "ModulePath"
 	releaseNotes    = "ReleaseNotes"
+	runtimeK        = "Runtime"
 
 	// artifact-only keys.
 	osKey        = "Os"
@@ -76,6 +82,7 @@ func New(ctx *context.Context) *Template {
 			version:         ctx.Version,
 			rawVersion:      rawVersionV,
 			tag:             ctx.Git.CurrentTag,
+			previousTag:     ctx.Git.PreviousTag,
 			branch:          ctx.Git.Branch,
 			commit:          ctx.Git.Commit,
 			shortCommit:     ctx.Git.ShortCommit,
@@ -83,6 +90,10 @@ func New(ctx *context.Context) *Template {
 			commitDate:      ctx.Git.CommitDate.UTC().Format(time.RFC3339),
 			commitTimestamp: ctx.Git.CommitDate.UTC().Unix(),
 			gitURL:          ctx.Git.URL,
+			summary:         ctx.Git.Summary,
+			tagSubject:      ctx.Git.TagSubject,
+			tagContents:     ctx.Git.TagContents,
+			releaseURL:      ctx.ReleaseURL,
 			env:             ctx.Env,
 			date:            ctx.Date.UTC().Format(time.RFC3339),
 			timestamp:       ctx.Date.UTC().Unix(),
@@ -92,6 +103,7 @@ func New(ctx *context.Context) *Template {
 			prerelease:      ctx.Semver.Prerelease,
 			isSnapshot:      ctx.Snapshot,
 			releaseNotes:    ctx.ReleaseNotes,
+			runtimeK:        ctx.Runtime,
 		},
 	}
 }
@@ -169,6 +181,7 @@ func (t *Template) Apply(s string) (string, error) {
 			"toupper":    strings.ToUpper,
 			"trim":       strings.TrimSpace,
 			"trimprefix": strings.TrimPrefix,
+			"trimsuffix": strings.TrimSuffix,
 			"dir":        filepath.Dir,
 			"abs":        filepath.Abs,
 			"incmajor":   incMajor,

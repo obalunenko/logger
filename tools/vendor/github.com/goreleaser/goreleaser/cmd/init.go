@@ -6,24 +6,24 @@ import (
 	"github.com/apex/log"
 	"github.com/fatih/color"
 	"github.com/goreleaser/goreleaser/internal/static"
-	"github.com/spf13/cobra"
+	"github.com/muesli/coral"
 )
 
 type initCmd struct {
-	cmd    *cobra.Command
+	cmd    *coral.Command
 	config string
 }
 
 func newInitCmd() *initCmd {
 	root := &initCmd{}
-	cmd := &cobra.Command{
+	cmd := &coral.Command{
 		Use:           "init",
 		Aliases:       []string{"i"},
-		Short:         "Generates a .goreleaser.yml file",
+		Short:         "Generates a .goreleaser.yaml file",
 		SilenceUsage:  true,
 		SilenceErrors: true,
-		Args:          cobra.NoArgs,
-		RunE: func(cmd *cobra.Command, args []string) error {
+		Args:          coral.NoArgs,
+		RunE: func(cmd *coral.Command, args []string) error {
 			conf, err := os.OpenFile(root.config, os.O_WRONLY|os.O_CREATE|os.O_TRUNC|os.O_EXCL, 0o644)
 			if err != nil {
 				return err
@@ -49,7 +49,7 @@ func newInitCmd() *initCmd {
 		},
 	}
 
-	cmd.Flags().StringVarP(&root.config, "config", "f", ".goreleaser.yml", "Load configuration from file")
+	cmd.Flags().StringVarP(&root.config, "config", "f", ".goreleaser.yaml", "Load configuration from file")
 
 	root.cmd = cmd
 	return root
