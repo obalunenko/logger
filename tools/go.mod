@@ -3,7 +3,7 @@ module github.com/obalunenko/logger/tools
 go 1.17
 
 require (
-	github.com/golangci/golangci-lint v1.45.1
+	github.com/golangci/golangci-lint v1.45.2
 	github.com/goreleaser/goreleaser v1.6.3
 	golang.org/x/tools v0.1.10
 	gotest.tools/gotestsum v1.7.0
