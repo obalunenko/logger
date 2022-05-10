@@ -6,7 +6,7 @@ require (
 	github.com/golangci/golangci-lint v1.46.0
 	github.com/goreleaser/goreleaser v1.6.3
 	golang.org/x/tools v0.1.11-0.20220316014157-77aa08bb151a
-	gotest.tools/gotestsum v1.8.0
+	gotest.tools/gotestsum v1.8.1
 )
 
 require (
