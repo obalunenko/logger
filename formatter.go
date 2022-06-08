@@ -38,9 +38,10 @@ func jsonFormatter() logrus.Formatter {
 func textFormatter() logrus.Formatter {
 	f := new(logrus.TextFormatter)
 
+	f.ForceColors = true
+	f.DisableColors = false
 	f.FullTimestamp = true
 	f.TimestampFormat = "02-01-2006 15:04:05"
-
 	f.QuoteEmptyFields = true
 
 	return f
