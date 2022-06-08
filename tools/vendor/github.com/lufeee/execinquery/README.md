@@ -1,5 +1,6 @@
 # execinquery - a simple query string checker in Query function
-[![test-and-lint](https://github.com/lufeee/execinquery/actions/workflows/test-and-lint.yml/badge.svg?branch=main)](https://github.com/lufeee/execinquery/actions/workflows/test-and-lint.yml)
+[![Go Matrix](https://github.com/lufeee/execinquery/actions/workflows/go-cross.yml/badge.svg?branch=main)](https://github.com/lufeee/execinquery/actions/workflows/go-cross.yml)
+[![Go lint](https://github.com/lufeee/execinquery/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/lufeee/execinquery/actions/workflows/lint.yml)
 [![MIT License](http://img.shields.io/badge/license-MIT-blue.svg?style=flat)](LICENSE)
 ## About
 
@@ -38,10 +39,10 @@ func main() {
 ```
 
 ```console
-go vet -vettool=(which execinquery) ./...
+go vet -vettool=$(which execinquery) ./...
 
 # command-line-arguments
-./a.go:16:11: It's better to use Execute method instead of Query method to execute `UPDATE` query
+./a.go:16:11: Use Exec instead of Query to execute `UPDATE` query
 ```
 
 ## CI
@@ -68,7 +69,7 @@ go vet -vettool=(which execinquery) ./...
   run: go vet -vettool=`which execinquery` ./...
 ```
 
-### License 
+### License
 
 MIT license.
 
