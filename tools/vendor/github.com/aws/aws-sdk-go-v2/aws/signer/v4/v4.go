@@ -382,7 +382,12 @@ func (s *Signer) PresignHTTP(
 }
 
 func (s *httpSigner) buildCredentialScope() string {
-	return v4Internal.BuildCredentialScope(s.Time, s.Region, s.ServiceName)
+	return strings.Join([]string{
+		s.Time.ShortTimeFormat(),
+		s.Region,
+		s.ServiceName,
+		"aws4_request",
+	}, "/")
 }
 
 func buildQuery(r v4Internal.Rule, header http.Header) (url.Values, http.Header) {

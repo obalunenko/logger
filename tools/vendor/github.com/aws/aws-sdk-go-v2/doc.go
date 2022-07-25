@@ -52,7 +52,7 @@
 //
 //	    fmt.Println("Tables:")
 //	    for _, tableName := range resp.TableNames {
-//	        fmt.Println(tableName)
+//	        fmt.Println(aws.ToString(tableName))
 //	    }
 //	}
 package sdk
