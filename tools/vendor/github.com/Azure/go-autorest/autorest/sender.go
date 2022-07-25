@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"net"
 	"net/http"
 	"net/http/cookiejar"
 	"strconv"
@@ -130,18 +129,15 @@ func sender(renengotiation tls.RenegotiationSupport) Sender {
 	// note that we can't init defaultSenders in init() since it will
 	// execute before calling code has had a chance to enable tracing
 	defaultSenders[renengotiation].init.Do(func() {
-		// copied from http.DefaultTransport with a TLS minimum version.
+		// Use behaviour compatible with DefaultTransport, but require TLS minimum version.
+		defaultTransport := http.DefaultTransport.(*http.Transport)
 		transport := &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			DialContext: (&net.Dialer{
-				Timeout:   30 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			ForceAttemptHTTP2:     true,
-			MaxIdleConns:          100,
-			IdleConnTimeout:       90 * time.Second,
-			TLSHandshakeTimeout:   10 * time.Second,
-			ExpectContinueTimeout: 1 * time.Second,
+			Proxy:                 defaultTransport.Proxy,
+			DialContext:           defaultTransport.DialContext,
+			MaxIdleConns:          defaultTransport.MaxIdleConns,
+			IdleConnTimeout:       defaultTransport.IdleConnTimeout,
+			TLSHandshakeTimeout:   defaultTransport.TLSHandshakeTimeout,
+			ExpectContinueTimeout: defaultTransport.ExpectContinueTimeout,
 			TLSClientConfig: &tls.Config{
 				MinVersion:    tls.VersionTLS12,
 				Renegotiation: renengotiation,

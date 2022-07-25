@@ -170,11 +170,7 @@ func GetTokenFromCLIWithParams(params GetAccessTokenParams) (*Token, error) {
 
 	output, err := cliCmd.Output()
 	if err != nil {
-		if stderr.Len() > 0 {
-			return nil, fmt.Errorf("Invoking Azure CLI failed with the following error: %s", stderr.String())
-		}
-
-		return nil, fmt.Errorf("Invoking Azure CLI failed with the following error: %s", err.Error())
+		return nil, fmt.Errorf("Invoking Azure CLI failed with the following error: %s", stderr.String())
 	}
 
 	tokenResponse := Token{}
