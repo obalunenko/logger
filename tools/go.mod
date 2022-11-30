@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/golangci/golangci-lint v1.50.1
-	github.com/goreleaser/goreleaser v1.13.0
+	github.com/goreleaser/goreleaser v1.13.1
 	golang.org/x/tools v0.3.0
 	gotest.tools/gotestsum v1.8.2
 )
