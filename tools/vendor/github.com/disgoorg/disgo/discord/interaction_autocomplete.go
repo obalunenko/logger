@@ -1,7 +1,7 @@
 package discord
 
 import (
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -149,6 +149,17 @@ func (d AutocompleteInteractionData) MarshalJSON() ([]byte, error) {
 		GuildID: d.GuildID,
 		Options: options,
 	})
+}
+
+func (d AutocompleteInteractionData) CommandPath() string {
+	path := "/" + d.CommandName
+	if d.SubCommandGroupName != nil {
+		path += "/" + *d.SubCommandGroupName
+	}
+	if d.SubCommandName != nil {
+		path += "/" + *d.SubCommandName
+	}
+	return path
 }
 
 func (d AutocompleteInteractionData) Option(name string) (AutocompleteOption, bool) {

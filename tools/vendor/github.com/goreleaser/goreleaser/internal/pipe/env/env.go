@@ -115,8 +115,11 @@ func (Pipe) Run(ctx *context.Context) error {
 }
 
 func checkErrors(ctx *context.Context, noTokens, noTokenErrs bool, gitlabTokenErr, githubTokenErr, giteaTokenErr error) error {
-	if ctx.SkipTokenCheck || ctx.SkipPublish || ctx.Config.Release.Disable {
+	if ctx.SkipTokenCheck || ctx.SkipPublish {
 		return nil
+	}
+	if b, err := tmpl.New(ctx).Bool(ctx.Config.Release.Disable); err != nil || b {
+		return err
 	}
 
 	if noTokens && noTokenErrs {
@@ -140,6 +143,7 @@ func checkErrors(ctx *context.Context, noTokens, noTokenErrs bool, gitlabTokenEr
 func loadEnv(env, path string) (string, error) {
 	val := os.Getenv(env)
 	if val != "" {
+		log.Infof("using token from %q", "$"+env)
 		return val, nil
 	}
 	path, err := homedir.Expand(path)
@@ -154,6 +158,7 @@ func loadEnv(env, path string) (string, error) {
 		return "", err
 	}
 	defer f.Close()
+	log.Infof("using token from %q", path)
 	bts, _, err := bufio.NewReader(f).ReadLine()
 	return string(bts), err
 }

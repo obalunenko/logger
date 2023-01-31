@@ -177,6 +177,7 @@ func (c *Config) expandEnvVars() {
 	c.Info.Release = os.Expand(c.Info.Release, c.envMappingFunc)
 	c.Info.Version = os.Expand(c.Info.Version, c.envMappingFunc)
 	c.Info.Prerelease = os.Expand(c.Info.Prerelease, c.envMappingFunc)
+	c.Info.Platform = os.Expand(c.Info.Platform, c.envMappingFunc)
 	c.Info.Arch = os.Expand(c.Info.Arch, c.envMappingFunc)
 	for or := range c.Overrides {
 		c.Overrides[or].Conflicts = c.expandEnvVarsStringSlice(c.Overrides[or].Conflicts)
@@ -186,8 +187,15 @@ func (c *Config) expandEnvVars() {
 		c.Overrides[or].Provides = c.expandEnvVarsStringSlice(c.Overrides[or].Provides)
 		c.Overrides[or].Suggests = c.expandEnvVarsStringSlice(c.Overrides[or].Suggests)
 	}
+	c.Info.Conflicts = c.expandEnvVarsStringSlice(c.Info.Conflicts)
+	c.Info.Depends = c.expandEnvVarsStringSlice(c.Info.Depends)
+	c.Info.Replaces = c.expandEnvVarsStringSlice(c.Info.Replaces)
+	c.Info.Recommends = c.expandEnvVarsStringSlice(c.Info.Recommends)
+	c.Info.Provides = c.expandEnvVarsStringSlice(c.Info.Provides)
+	c.Info.Suggests = c.expandEnvVarsStringSlice(c.Info.Suggests)
 
 	// Maintainer and vendor fields
+	c.Info.Name = os.Expand(c.Info.Name, c.envMappingFunc)
 	c.Info.Maintainer = os.Expand(c.Info.Maintainer, c.envMappingFunc)
 	c.Info.Vendor = os.Expand(c.Info.Vendor, c.envMappingFunc)
 
