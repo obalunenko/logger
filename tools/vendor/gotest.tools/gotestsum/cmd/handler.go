@@ -57,7 +57,7 @@ func (h *eventHandler) Close() error {
 var _ testjson.EventHandler = &eventHandler{}
 
 func newEventHandler(opts *options) (*eventHandler, error) {
-	formatter := testjson.NewEventFormatter(opts.stdout, opts.format)
+	formatter := testjson.NewEventFormatter(opts.stdout, opts.format, opts.formatOptions)
 	if formatter == nil {
 		return nil, fmt.Errorf("unknown format %s", opts.format)
 	}
@@ -96,6 +96,7 @@ func writeJUnitFile(opts *options, execution *testjson.Execution) error {
 		ProjectName:             opts.junitProjectName,
 		FormatTestSuiteName:     opts.junitTestSuiteNameFormat.Value(),
 		FormatTestCaseClassname: opts.junitTestCaseClassnameFormat.Value(),
+		HideEmptyPackages:       opts.junitHideEmptyPackages,
 	})
 }
 

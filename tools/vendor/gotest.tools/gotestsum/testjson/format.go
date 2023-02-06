@@ -67,7 +67,7 @@ func testNameFormat(event TestEvent, exec *Execution) string {
 		}
 
 		event.Elapsed = 0 // hide elapsed for now, for backwards compat
-		return result + " " + packageLine(event, exec)
+		return result + " " + packageLine(event, exec.Package(event.Package))
 
 	case event.Action == ActionFail:
 		pkg := exec.Package(event.Package)
@@ -128,37 +128,54 @@ func all(cond ...bool) bool {
 	return true
 }
 
-func pkgNameFormat(event TestEvent, exec *Execution) string {
-	if !event.PackageEvent() {
-		return ""
+func pkgNameFormat(opts FormatOptions) func(event TestEvent, exec *Execution) string {
+	return func(event TestEvent, exec *Execution) string {
+		if !event.PackageEvent() {
+			return ""
+		}
+		return shortFormatPackageEvent(opts, event, exec)
 	}
-	return shortFormatPackageEvent(event, exec)
 }
 
-func shortFormatPackageEvent(event TestEvent, exec *Execution) string {
+func shortFormatPackageEvent(opts FormatOptions, event TestEvent, exec *Execution) string {
 	pkg := exec.Package(event.Package)
 
+	var iconSkipped, iconSuccess, iconFailure string
+	if opts.UseHiVisibilityIcons {
+		iconSkipped = "➖"
+		iconSuccess = "✅"
+		iconFailure = "❌"
+	} else {
+		iconSkipped = "∅"
+		iconSuccess = "✓"
+		iconFailure = "✖"
+	}
+
 	fmtEvent := func(action string) string {
-		return action + "  " + packageLine(event, exec)
+		return action + "  " + packageLine(event, exec.Package(event.Package))
 	}
 	withColor := colorEvent(event)
 	switch event.Action {
 	case ActionSkip:
-		return fmtEvent(withColor("∅"))
+		if opts.HideEmptyPackages {
+			return ""
+		}
+		return fmtEvent(withColor(iconSkipped))
 	case ActionPass:
 		if pkg.Total == 0 {
-			return fmtEvent(withColor("∅"))
+			if opts.HideEmptyPackages {
+				return ""
+			}
+			return fmtEvent(withColor(iconSkipped))
 		}
-		return fmtEvent(withColor("✓"))
+		return fmtEvent(withColor(iconSuccess))
 	case ActionFail:
-		return fmtEvent(withColor("✖"))
+		return fmtEvent(withColor(iconFailure))
 	}
 	return ""
 }
 
-func packageLine(event TestEvent, exec *Execution) string {
-	pkg := exec.Package(event.Package)
-
+func packageLine(event TestEvent, pkg *Package) string {
 	var buf strings.Builder
 	buf.WriteString(RelativePackagePath(event.Package))
 
@@ -181,16 +198,18 @@ func packageLine(event TestEvent, exec *Execution) string {
 	return buf.String()
 }
 
-func pkgNameWithFailuresFormat(event TestEvent, exec *Execution) string {
-	if !event.PackageEvent() {
-		if event.Action == ActionFail {
-			pkg := exec.Package(event.Package)
-			tc := pkg.LastFailedByName(event.Test)
-			return pkg.Output(tc.ID)
+func pkgNameWithFailuresFormat(opts FormatOptions) func(event TestEvent, exec *Execution) string {
+	return func(event TestEvent, exec *Execution) string {
+		if !event.PackageEvent() {
+			if event.Action == ActionFail {
+				pkg := exec.Package(event.Package)
+				tc := pkg.LastFailedByName(event.Test)
+				return pkg.Output(tc.ID)
+			}
+			return ""
 		}
-		return ""
+		return shortFormatPackageEvent(opts, event, exec)
 	}
-	return shortFormatPackageEvent(event, exec)
 }
 
 func colorEvent(event TestEvent) func(format string, a ...interface{}) string {
@@ -211,8 +230,13 @@ type EventFormatter interface {
 	Format(event TestEvent, output *Execution) error
 }
 
+type FormatOptions struct {
+	HideEmptyPackages    bool
+	UseHiVisibilityIcons bool
+}
+
 // NewEventFormatter returns a formatter for printing events.
-func NewEventFormatter(out io.Writer, format string) EventFormatter {
+func NewEventFormatter(out io.Writer, format string, formatOpts FormatOptions) EventFormatter {
 	switch format {
 	case "debug":
 		return &formatAdapter{out, debugFormat}
@@ -223,13 +247,13 @@ func NewEventFormatter(out io.Writer, format string) EventFormatter {
 	case "dots", "dots-v1":
 		return &formatAdapter{out, dotsFormatV1}
 	case "dots-v2":
-		return newDotFormatter(out)
+		return newDotFormatter(out, formatOpts)
 	case "testname", "short-verbose":
 		return &formatAdapter{out, testNameFormat}
 	case "pkgname", "short":
-		return &formatAdapter{out, pkgNameFormat}
+		return &formatAdapter{out, pkgNameFormat(formatOpts)}
 	case "pkgname-and-test-fails", "short-with-failures":
-		return &formatAdapter{out, pkgNameWithFailuresFormat}
+		return &formatAdapter{out, pkgNameWithFailuresFormat(formatOpts)}
 	default:
 		return nil
 	}
