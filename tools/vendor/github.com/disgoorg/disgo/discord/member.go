@@ -3,7 +3,8 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/internal/flags"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -19,6 +20,7 @@ type Member struct {
 	PremiumSince               *time.Time     `json:"premium_since,omitempty"`
 	Deaf                       bool           `json:"deaf,omitempty"`
 	Mute                       bool           `json:"mute,omitempty"`
+	Flags                      MemberFlags    `json:"flags"`
 	Pending                    bool           `json:"pending"`
 	CommunicationDisabledUntil *time.Time     `json:"communication_disabled_until"`
 
@@ -80,10 +82,41 @@ type MemberUpdate struct {
 	Roles                      *[]snowflake.ID           `json:"roles,omitempty"`
 	Mute                       *bool                     `json:"mute,omitempty"`
 	Deaf                       *bool                     `json:"deaf,omitempty"`
+	Flags                      *MemberFlags              `json:"flags,omitempty"`
 	CommunicationDisabledUntil *json.Nullable[time.Time] `json:"communication_disabled_until,omitempty"`
 }
 
 // CurrentMemberUpdate is used to update the current member
 type CurrentMemberUpdate struct {
 	Nick string `json:"nick"`
+}
+
+type MemberFlags int
+
+const (
+	MemberFlagsDidRejoin MemberFlags = 1 << iota
+	MemberFlagsCompletedOnboarding
+	MemberFlagsBypassesVerification
+	MemberFlagsStartedOnboarding
+	MemberFlagsNone MemberFlags = 0
+)
+
+// Add allows you to add multiple bits together, producing a new bit
+func (f MemberFlags) Add(bits ...MemberFlags) MemberFlags {
+	return flags.Add(f, bits...)
+}
+
+// Remove allows you to subtract multiple bits from the first, producing a new bit
+func (f MemberFlags) Remove(bits ...MemberFlags) MemberFlags {
+	return flags.Remove(f, bits...)
+}
+
+// Has will ensure that the bit includes all the bits entered
+func (f MemberFlags) Has(bits ...MemberFlags) bool {
+	return flags.Has(f, bits...)
+}
+
+// Missing will check whether the bit is missing any one of the bits
+func (f MemberFlags) Missing(bits ...MemberFlags) bool {
+	return flags.Missing(f, bits...)
 }

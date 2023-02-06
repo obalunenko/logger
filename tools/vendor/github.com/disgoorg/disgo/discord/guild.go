@@ -3,7 +3,8 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/internal/flags"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -25,42 +26,28 @@ type SystemChannelFlags int
 const (
 	SystemChannelFlagSuppressJoinNotifications SystemChannelFlags = 1 << iota
 	SystemChannelFlagSuppressPremiumSubscriptions
+	SystemChannelFlagSuppressGuildReminderNotifications
+	SystemChannelFlagSuppressJoinNotificationReplies
 )
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f SystemChannelFlags) Add(bits ...SystemChannelFlags) SystemChannelFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f SystemChannelFlags) Remove(bits ...SystemChannelFlags) SystemChannelFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f SystemChannelFlags) Has(bits ...SystemChannelFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f SystemChannelFlags) Missing(bits ...SystemChannelFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }
 
 // The VerificationLevel of a Guild that members must be to send messages
@@ -124,7 +111,6 @@ const (
 	GuildFeatureNews                          GuildFeature = "NEWS"
 	GuildFeaturePartnered                     GuildFeature = "PARTNERED"
 	GuildFeaturePreviewEnabled                GuildFeature = "PREVIEW_ENABLED"
-	GuildFeaturePrivateThreads                GuildFeature = "PRIVATE_THREADS"
 	GuildFeatureRoleIcons                     GuildFeature = "ROLE_ICONS"
 	GuildFeatureTicketedEventsEnabled         GuildFeature = "TICKETED_EVENTS_ENABLED"
 	GuildFeatureVanityURL                     GuildFeature = "VANITY_URL"
@@ -165,7 +151,7 @@ type Guild struct {
 	PreferredLocale             string                     `json:"preferred_locale"`
 	PublicUpdatesChannelID      *snowflake.ID              `json:"public_updates_channel_id"`
 	MaxVideoChannelUsers        int                        `json:"max_video_channel_users"`
-	WelcomeScreen               WelcomeScreen              `json:"welcome_screen"`
+	WelcomeScreen               GuildWelcomeScreen         `json:"welcome_screen"`
 	NSFWLevel                   NSFWLevel                  `json:"nsfw_level"`
 	BoostProgressBarEnabled     bool                       `json:"premium_progress_bar_enabled"`
 	JoinedAt                    time.Time                  `json:"joined_at"`
@@ -266,18 +252,25 @@ type OAuth2Guild struct {
 	Features    []GuildFeature `json:"features"`
 }
 
-// WelcomeScreen is the Welcome Screen of a Guild
-type WelcomeScreen struct {
+// GuildWelcomeScreen is the Welcome Screen of a Guild
+type GuildWelcomeScreen struct {
 	Description     *string               `json:"description,omitempty"`
 	WelcomeChannels []GuildWelcomeChannel `json:"welcome_channels"`
 }
 
-// GuildWelcomeChannel is one of the channels in a WelcomeScreen
+// GuildWelcomeChannel is one of the channels in a GuildWelcomeScreen
 type GuildWelcomeChannel struct {
 	ChannelID   snowflake.ID  `json:"channel_id"`
 	Description string        `json:"description"`
 	EmojiID     *snowflake.ID `json:"emoji_id,omitempty"`
 	EmojiName   *string       `json:"emoji_name,omitempty"`
+}
+
+// GuildWelcomeScreenUpdate is used to update the GuildWelcomeScreen of a Guild
+type GuildWelcomeScreenUpdate struct {
+	Enabled         *bool                  `json:"enabled,omitempty"`
+	WelcomeChannels *[]GuildWelcomeChannel `json:"welcome_channels,omitempty"`
+	Description     *string                `json:"description,omitempty"`
 }
 
 // GuildPreview is used for previewing public Guild(s) before joining them
@@ -350,4 +343,14 @@ type GuildCreateChannel struct {
 	ChannelCreate
 	ID       int `json:"id,omitempty"`
 	ParentID int `json:"parent_id,omitempty"`
+}
+
+type GuildPrune struct {
+	Days              int            `json:"days"`
+	ComputePruneCount bool           `json:"compute_prune_count"`
+	IncludeRoles      []snowflake.ID `json:"include_roles"`
+}
+
+type GuildPruneResult struct {
+	Pruned *int `json:"pruned"`
 }
