@@ -191,8 +191,8 @@ func catalogArtifact(ctx *context.Context, cfg config.SBOM, a *artifact.Artifact
 
 	var b bytes.Buffer
 	w := gio.Safe(&b)
-	cmd.Stderr = io.MultiWriter(logext.NewWriter(fields, logext.Error), w)
-	cmd.Stdout = io.MultiWriter(logext.NewWriter(fields, logext.Info), w)
+	cmd.Stderr = io.MultiWriter(logext.NewWriter(), w)
+	cmd.Stdout = io.MultiWriter(logext.NewWriter(), w)
 
 	log.WithFields(fields).Info("cataloging")
 	if err := cmd.Run(); err != nil {
@@ -238,8 +238,7 @@ func applyTemplate(ctx *context.Context, cfg config.SBOM, a *artifact.Artifact) 
 		}
 		extraEnvs = appendExtraEnv("artifact", procPath, extraEnvs, env)
 		extraEnvs = appendExtraEnv("artifactID", a.ID(), extraEnvs, env)
-
-		templater = templater.WithArtifact(a, nil)
+		templater = templater.WithArtifact(a)
 	}
 
 	for _, keyValue := range cfg.Env {

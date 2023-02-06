@@ -3,7 +3,7 @@ package discord
 import (
 	"fmt"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -229,6 +229,17 @@ func (d SlashCommandInteractionData) CommandID() snowflake.ID {
 
 func (d SlashCommandInteractionData) CommandName() string {
 	return d.name
+}
+
+func (d SlashCommandInteractionData) CommandPath() string {
+	path := "/" + d.name
+	if d.SubCommandGroupName != nil {
+		path += "/" + *d.SubCommandGroupName
+	}
+	if d.SubCommandName != nil {
+		path += "/" + *d.SubCommandName
+	}
+	return path
 }
 
 func (d SlashCommandInteractionData) GuildID() *snowflake.ID {

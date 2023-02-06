@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/internal/flags"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -38,6 +39,14 @@ const (
 	MessageTypeGuildInviteReminder
 	MessageTypeContextMenuCommand
 	MessageTypeAutoModerationAction
+	_
+	MessageTypeInteractionPremiumUpsell
+	_
+	_
+	_
+	_
+	_
+	MessageTypeGuildApplicationPremiumSubscription
 )
 
 func (t MessageType) System() bool {
@@ -96,7 +105,8 @@ type Message struct {
 	WebhookID         *snowflake.ID        `json:"webhook_id,omitempty"`
 	Activity          *MessageActivity     `json:"activity,omitempty"`
 	Application       *MessageApplication  `json:"application,omitempty"`
-	Stickers          []MessageSticker     `json:"sticker_items,omitempty"`
+	ApplicationID     *snowflake.ID        `json:"application_id,omitempty"`
+	StickerItems      []MessageSticker     `json:"sticker_items,omitempty"`
 	ReferencedMessage *Message             `json:"referenced_message,omitempty"`
 	LastUpdated       *time.Time           `json:"last_updated,omitempty"`
 	Thread            *MessageThread       `json:"thread,omitempty"`
@@ -174,15 +184,15 @@ func (m Message) Buttons() []ButtonComponent {
 }
 
 // ButtonByID returns a ButtonComponent with the specific customID from this Message
-func (m Message) ButtonByID(customID string) *ButtonComponent {
+func (m Message) ButtonByID(customID string) (ButtonComponent, bool) {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(*ButtonComponent); ok && button.ID() == customID {
-				return button
+			if button, ok := m.Components[i].Components()[ii].(ButtonComponent); ok && button.ID() == customID {
+				return button, true
 			}
 		}
 	}
-	return nil
+	return ButtonComponent{}, false
 }
 
 // SelectMenus returns all SelectMenuComponent(s) from this Message
@@ -190,8 +200,8 @@ func (m Message) SelectMenus() []SelectMenuComponent {
 	var selectMenus []SelectMenuComponent
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok {
-				selectMenus = append(selectMenus, button)
+			if selectMenu, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok {
+				selectMenus = append(selectMenus, selectMenu)
 			}
 		}
 	}
@@ -199,15 +209,115 @@ func (m Message) SelectMenus() []SelectMenuComponent {
 }
 
 // SelectMenuByID returns a SelectMenuComponent with the specific customID from this Message
-func (m Message) SelectMenuByID(customID string) *SelectMenuComponent {
+func (m Message) SelectMenuByID(customID string) (SelectMenuComponent, bool) {
 	for i := range m.Components {
 		for ii := range m.Components[i].Components() {
-			if button, ok := m.Components[i].Components()[ii].(*SelectMenuComponent); ok && button.ID() == customID {
-				return button
+			if selectMenu, ok := m.Components[i].Components()[ii].(SelectMenuComponent); ok && selectMenu.ID() == customID {
+				return selectMenu, true
 			}
 		}
 	}
-	return nil
+	return nil, false
+}
+
+// UserSelectMenus returns all UserSelectMenuComponent(s) from this Message
+func (m Message) UserSelectMenus() []UserSelectMenuComponent {
+	var userSelectMenus []UserSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if userSelectMenu, ok := m.Components[i].Components()[ii].(UserSelectMenuComponent); ok {
+				userSelectMenus = append(userSelectMenus, userSelectMenu)
+			}
+		}
+	}
+	return userSelectMenus
+}
+
+// UserSelectMenuByID returns a UserSelectMenuComponent with the specific customID from this Message
+func (m Message) UserSelectMenuByID(customID string) (UserSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if userSelectMenu, ok := m.Components[i].Components()[ii].(UserSelectMenuComponent); ok && userSelectMenu.ID() == customID {
+				return userSelectMenu, true
+			}
+		}
+	}
+	return UserSelectMenuComponent{}, false
+}
+
+// RoleSelectMenus returns all RoleSelectMenuComponent(s) from this Message
+func (m Message) RoleSelectMenus() []RoleSelectMenuComponent {
+	var roleSelectMenus []RoleSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if roleSelectMenu, ok := m.Components[i].Components()[ii].(RoleSelectMenuComponent); ok {
+				roleSelectMenus = append(roleSelectMenus, roleSelectMenu)
+			}
+		}
+	}
+	return roleSelectMenus
+}
+
+// RoleSelectMenuByID returns a RoleSelectMenuComponent with the specific customID from this Message
+func (m Message) RoleSelectMenuByID(customID string) (RoleSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if roleSelectMenu, ok := m.Components[i].Components()[ii].(RoleSelectMenuComponent); ok && roleSelectMenu.ID() == customID {
+				return roleSelectMenu, true
+			}
+		}
+	}
+	return RoleSelectMenuComponent{}, false
+}
+
+// MentionableSelectMenus returns all MentionableSelectMenuComponent(s) from this Message
+func (m Message) MentionableSelectMenus() []MentionableSelectMenuComponent {
+	var mentionableSelectMenus []MentionableSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if mentionableSelectMenu, ok := m.Components[i].Components()[ii].(MentionableSelectMenuComponent); ok {
+				mentionableSelectMenus = append(mentionableSelectMenus, mentionableSelectMenu)
+			}
+		}
+	}
+	return mentionableSelectMenus
+}
+
+// MentionableSelectMenuByID returns a MentionableSelectMenuComponent with the specific customID from this Message
+func (m Message) MentionableSelectMenuByID(customID string) (MentionableSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if mentionableSelectMenu, ok := m.Components[i].Components()[ii].(MentionableSelectMenuComponent); ok && mentionableSelectMenu.ID() == customID {
+				return mentionableSelectMenu, true
+			}
+		}
+	}
+	return MentionableSelectMenuComponent{}, false
+}
+
+// ChannelSelectMenus returns all ChannelSelectMenuComponent(s) from this Message
+func (m Message) ChannelSelectMenus() []ChannelSelectMenuComponent {
+	var channelSelectMenus []ChannelSelectMenuComponent
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if channelSelectMenu, ok := m.Components[i].Components()[ii].(ChannelSelectMenuComponent); ok {
+				channelSelectMenus = append(channelSelectMenus, channelSelectMenu)
+			}
+		}
+	}
+	return channelSelectMenus
+}
+
+// ChannelSelectMenuByID returns a ChannelSelectMenuComponent with the specific customID from this Message
+func (m Message) ChannelSelectMenuByID(customID string) (ChannelSelectMenuComponent, bool) {
+	for i := range m.Components {
+		for ii := range m.Components[i].Components() {
+			if channelSelectMenu, ok := m.Components[i].Components()[ii].(ChannelSelectMenuComponent); ok && channelSelectMenu.ID() == customID {
+				return channelSelectMenu, true
+			}
+		}
+	}
+	return ChannelSelectMenuComponent{}, false
 }
 
 func (m Message) JumpURL() string {
@@ -284,7 +394,7 @@ type MessageBulkDelete struct {
 }
 
 // The MessageFlags of a Message
-type MessageFlags int64
+type MessageFlags int
 
 // Constants for MessageFlags
 const (
@@ -301,36 +411,20 @@ const (
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f MessageFlags) Add(bits ...MessageFlags) MessageFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f MessageFlags) Remove(bits ...MessageFlags) MessageFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f MessageFlags) Has(bits ...MessageFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f MessageFlags) Missing(bits ...MessageFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }

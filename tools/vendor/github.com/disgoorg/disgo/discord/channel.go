@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/disgo/json"
+	"github.com/disgoorg/disgo/internal/flags"
+	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
 )
 
@@ -41,38 +42,22 @@ const (
 
 // Add allows you to add multiple bits together, producing a new bit
 func (f ChannelFlags) Add(bits ...ChannelFlags) ChannelFlags {
-	for _, bit := range bits {
-		f |= bit
-	}
-	return f
+	return flags.Add(f, bits...)
 }
 
 // Remove allows you to subtract multiple bits from the first, producing a new bit
 func (f ChannelFlags) Remove(bits ...ChannelFlags) ChannelFlags {
-	for _, bit := range bits {
-		f &^= bit
-	}
-	return f
+	return flags.Remove(f, bits...)
 }
 
 // Has will ensure that the bit includes all the bits entered
 func (f ChannelFlags) Has(bits ...ChannelFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return false
-		}
-	}
-	return true
+	return flags.Has(f, bits...)
 }
 
 // Missing will check whether the bit is missing any one of the bits
 func (f ChannelFlags) Missing(bits ...ChannelFlags) bool {
-	for _, bit := range bits {
-		if (f & bit) != bit {
-			return true
-		}
-	}
-	return false
+	return flags.Missing(f, bits...)
 }
 
 type Channel interface {
@@ -1055,6 +1040,7 @@ type GuildForumChannel struct {
 	DefaultReactionEmoji          *DefaultReactionEmoji
 	DefaultThreadRateLimitPerUser int
 	DefaultSortOrder              *DefaultSortOrder
+	DefaultForumLayout            DefaultForumLayout
 }
 
 func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
@@ -1078,6 +1064,7 @@ func (c *GuildForumChannel) UnmarshalJSON(data []byte) error {
 	c.DefaultReactionEmoji = v.DefaultReactionEmoji
 	c.DefaultThreadRateLimitPerUser = v.DefaultThreadRateLimitPerUser
 	c.DefaultSortOrder = v.DefaultSortOrder
+	c.DefaultForumLayout = v.DefaultForumLayout
 	return nil
 }
 
@@ -1099,6 +1086,7 @@ func (c GuildForumChannel) MarshalJSON() ([]byte, error) {
 		DefaultReactionEmoji:          c.DefaultReactionEmoji,
 		DefaultThreadRateLimitPerUser: c.DefaultThreadRateLimitPerUser,
 		DefaultSortOrder:              c.DefaultSortOrder,
+		DefaultForumLayout:            c.DefaultForumLayout,
 	})
 }
 
@@ -1187,8 +1175,16 @@ type DefaultReactionEmoji struct {
 type DefaultSortOrder int
 
 const (
-	LatestActivity DefaultSortOrder = iota
-	CreationDate
+	DefaultSortOrderLatestActivity DefaultSortOrder = iota
+	DefaultSortOrderCreationDate
+)
+
+type DefaultForumLayout int
+
+const (
+	DefaultForumLayoutNotSet DefaultForumLayout = iota
+	DefaultForumLayoutListView
+	DefaultForumLayoutGalleryView
 )
 
 type AutoArchiveDuration int
@@ -1237,7 +1233,7 @@ func ApplyGuildIDToChannel(channel GuildChannel, guildID snowflake.ID) GuildChan
 	}
 }
 
-func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake.ID) MessageChannel {
+func ApplyLastMessageIDToChannel(channel GuildMessageChannel, lastMessageID snowflake.ID) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.lastMessageID = &lastMessageID
@@ -1256,7 +1252,7 @@ func ApplyLastMessageIDToChannel(channel MessageChannel, lastMessageID snowflake
 	}
 }
 
-func ApplyLastPinTimestampToChannel(channel MessageChannel, lastPinTimestamp *time.Time) MessageChannel {
+func ApplyLastPinTimestampToChannel(channel GuildMessageChannel, lastPinTimestamp *time.Time) GuildMessageChannel {
 	switch c := channel.(type) {
 	case GuildTextChannel:
 		c.lastPinTimestamp = lastPinTimestamp
