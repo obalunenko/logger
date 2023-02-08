@@ -21,6 +21,7 @@ import (
 	"github.com/goreleaser/nfpm/v2/deprecation"
 	"github.com/goreleaser/nfpm/v2/files"
 	"github.com/goreleaser/nfpm/v2/internal/sign"
+	"github.com/klauspost/compress/zstd"
 	gzip "github.com/klauspost/pgzip"
 	"github.com/ulikunitz/xz"
 )
@@ -312,6 +313,12 @@ func createDataTarball(info *nfpm.Info) (dataTarBall, md5sums []byte,
 			return nil, nil, 0, "", err
 		}
 		name = "data.tar.xz"
+	case "zstd":
+		dataTarballWriteCloser, err = zstd.NewWriter(&dataTarball)
+		if err != nil {
+			return nil, nil, 0, "", err
+		}
+		name = "data.tar.zst"
 	case "none":
 		dataTarballWriteCloser = nopCloser{Writer: &dataTarball}
 		name = "data.tar"
@@ -779,7 +786,7 @@ Version: {{ if .Info.Epoch}}{{ .Info.Epoch }}:{{ end }}{{.Info.Version}}
          {{- if .Info.Release}}-{{ .Info.Release }}{{- end }}
 Section: {{.Info.Section}}
 Priority: {{.Info.Priority}}
-Architecture: {{.Info.Arch}}
+Architecture: {{ if ne .Info.Platform "linux"}}{{ .Info.Platform }}-{{ end }}{{.Info.Arch}}
 {{- /* Optional fields */ -}}
 {{- if .Info.Maintainer}}
 Maintainer: {{.Info.Maintainer}}
@@ -788,7 +795,7 @@ Installed-Size: {{.InstalledSize}}
 {{- with .Info.Replaces}}
 Replaces: {{join .}}
 {{- end }}
-{{- with .Info.Provides}}
+{{- with nonEmpty .Info.Provides}}
 Provides: {{join .}}
 {{- end }}
 {{- with .Info.Depends}}
@@ -832,6 +839,17 @@ func writeControl(w io.Writer, data controlData) error {
 		"multiline": func(strs string) string {
 			ret := strings.ReplaceAll(strs, "\n", "\n ")
 			return strings.Trim(ret, " \n")
+		},
+		"nonEmpty": func(strs []string) []string {
+			var result []string
+			for _, s := range strs {
+				s := strings.TrimSpace(s)
+				if s == "" {
+					continue
+				}
+				result = append(result, s)
+			}
+			return result
 		},
 	})
 	return template.Must(tmpl.Parse(controlTemplate)).Execute(w, data)
