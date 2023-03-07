@@ -14,7 +14,6 @@ import (
 	"github.com/goreleaser/goreleaser/internal/extrafiles"
 	"github.com/goreleaser/goreleaser/internal/gio"
 	"github.com/goreleaser/goreleaser/internal/logext"
-	"github.com/goreleaser/goreleaser/internal/pipe"
 	"github.com/goreleaser/goreleaser/internal/semerrgroup"
 	"github.com/goreleaser/goreleaser/internal/tmpl"
 	"github.com/goreleaser/goreleaser/pkg/config"
@@ -26,10 +25,6 @@ var passthroughEnvVars = []string{"HOME", "USER", "USERPROFILE", "TMPDIR", "TMP"
 
 // Execute the given publisher
 func Execute(ctx *context.Context, publishers []config.Publisher) error {
-	if ctx.SkipPublish {
-		return pipe.ErrSkipPublishEnabled
-	}
-
 	for _, p := range publishers {
 		log.WithField("name", p.Name).Debug("executing custom publisher")
 		err := executePublisher(ctx, p)
@@ -114,7 +109,7 @@ func executeCommand(c *command, artifact *artifact.Artifact) error {
 	return nil
 }
 
-func filterArtifacts(artifacts artifact.Artifacts, publisher config.Publisher) []*artifact.Artifact {
+func filterArtifacts(artifacts *artifact.Artifacts, publisher config.Publisher) []*artifact.Artifact {
 	filters := []artifact.Filter{
 		artifact.ByType(artifact.UploadableArchive),
 		artifact.ByType(artifact.UploadableFile),
