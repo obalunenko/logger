@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // ChannelType for interacting with discord's channels
@@ -35,9 +36,11 @@ const (
 type ChannelFlags int
 
 const (
-	ChannelFlagPinned     ChannelFlags = 1 << 1
-	ChannelFlagRequireTag ChannelFlags = 1 << 4
-	ChannelFlagsNone      ChannelFlags = 0
+	ChannelFlagPinned ChannelFlags = 1 << (iota + 1)
+	_
+	_
+	ChannelFlagRequireTag
+	ChannelFlagsNone ChannelFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit

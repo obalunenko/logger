@@ -3,9 +3,10 @@ package discord
 import (
 	"time"
 
-	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 var _ Mentionable = (*Member)(nil)
@@ -94,10 +95,10 @@ type CurrentMemberUpdate struct {
 type MemberFlags int
 
 const (
-	MemberFlagsDidRejoin MemberFlags = 1 << iota
-	MemberFlagsCompletedOnboarding
-	MemberFlagsBypassesVerification
-	MemberFlagsStartedOnboarding
+	MemberFlagDidRejoin MemberFlags = 1 << iota
+	MemberFlagCompletedOnboarding
+	MemberFlagBypassesVerification
+	MemberFlagStartedOnboarding
 	MemberFlagsNone MemberFlags = 0
 )
 

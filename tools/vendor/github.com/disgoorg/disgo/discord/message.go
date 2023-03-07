@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/disgoorg/disgo/internal/flags"
 	"github.com/disgoorg/json"
 	"github.com/disgoorg/snowflake/v2"
+
+	"github.com/disgoorg/disgo/internal/flags"
 )
 
 // The MessageType indicates the Message type
@@ -41,11 +42,11 @@ const (
 	MessageTypeAutoModerationAction
 	_
 	MessageTypeInteractionPremiumUpsell
+	MessageTypeStageStart
+	MessageTypeStageEnd
+	MessageTypeStageSpeaker
 	_
-	_
-	_
-	_
-	_
+	MessageTypeStageTopic
 	MessageTypeGuildApplicationPremiumSubscription
 )
 
@@ -405,8 +406,13 @@ const (
 	MessageFlagUrgent
 	MessageFlagHasThread
 	MessageFlagEphemeral
-	MessageFlagLoading              // Message is an interaction of type 5, awaiting further response
-	MessageFlagsNone   MessageFlags = 0
+	MessageFlagLoading // Message is an interaction of type 5, awaiting further response
+	MessageFlagFailedToMentionSomeRolesInThread
+	_
+	_
+	_
+	MessageFlagSuppressNotifications
+	MessageFlagsNone MessageFlags = 0
 )
 
 // Add allows you to add multiple bits together, producing a new bit
