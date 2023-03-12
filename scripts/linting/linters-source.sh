@@ -76,11 +76,11 @@ function go-lint() {
 }
 
 function go-group() {
-  echo "gogroup..."
+  echo "goimports..."
 
   checkInstalled 'goimports'
 
-  declare -a lints=$(goimports -local=github.com/obalunenko/logger/ -l $(find . -type f -name "*.go" | grep -v "vendor/"))
+  declare -a lints=$(goimports -l -local=$(go list -m) $(find . -type f -name "*.go" | grep -v "vendor/"))
 
   if [[ ${lints} ]]; then
     echo "fix it:"
@@ -103,7 +103,7 @@ function golangci() {
 
   checkInstalled 'golangci-lint'
 
-  golangci-lint run --out-format=colored-line-number ./...
+  golangci-lint run --config .golangci.yml ./...
 
   echo ""
 }

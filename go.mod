@@ -1,6 +1,6 @@
 module github.com/obalunenko/logger
 
-go 1.18
+go 1.20
 
 require (
 	github.com/evalphobia/logrus_sentry v0.8.2

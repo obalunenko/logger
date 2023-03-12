@@ -6,12 +6,16 @@ SCRIPT_NAME="$(basename "$0")"
 SCRIPT_DIR="$(dirname "$0")"
 REPO_ROOT="$(cd "${SCRIPT_DIR}" && git rev-parse --show-toplevel)"
 SCRIPTS_DIR="${REPO_ROOT}/scripts"
-COVER_DIR=${REPO_ROOT}/coverage
-
-source "${SCRIPTS_DIR}/helpers-source.sh"
 
 echo "${SCRIPT_NAME} is running... "
 
-openSource "${COVER_DIR}/full.html"
+source "${SCRIPTS_DIR}/linting/linters-source.sh"
+
+checkInstalled golangci-lint
+
+echo "Linting..."
+
+golangci-lint run --out-format=github-actions --no-config --disable-all -E govet
+golangci-lint run --config .golangci.pipe.yml
 
 echo "${SCRIPT_NAME} done."
