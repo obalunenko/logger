@@ -6,7 +6,7 @@ on:
       - 'v*'
     branches:
       - "!*"
-
+jobs:
   regression_test:
     strategy:
       fail-fast: false
