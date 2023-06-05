@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/evalphobia/logrus_sentry v0.8.2
-	github.com/sirupsen/logrus v1.9.2
+	github.com/sirupsen/logrus v1.9.3
 )
 
 require (
