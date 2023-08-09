@@ -14,10 +14,10 @@ updates:
       prefix: "chore"
       include: "scope"
 
-  - package-ecosystem: "gomod"
-    directory: "/tools/"
+  - package-ecosystem: "github-actions"
+    directory: "/"
     schedule:
-      interval: "daily"
+      interval: "weekly"
     labels:
       - "dependencies"
     assignees:
@@ -27,11 +27,11 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  
-  - package-ecosystem: "github-actions"
-    directory: "/"
+
+  - package-ecosystem: "docker"
+    directory: "/build/docker/go-tools"
     schedule:
-      interval: "weekly"
+      interval: "daily"
     labels:
       - "dependencies"
     assignees:

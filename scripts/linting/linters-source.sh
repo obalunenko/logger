@@ -103,7 +103,7 @@ function golangci() {
 
   checkInstalled 'golangci-lint'
 
-  golangci-lint run --config .golangci.yml ./...
+  golangci-lint run --config .golangci.yml --timeout=5m ./...
 
   echo ""
 }
