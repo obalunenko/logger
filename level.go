@@ -10,13 +10,19 @@ import (
 type Level = slog.Level
 
 const (
+	// LevelDebug is a debug level.
 	LevelDebug = slog.LevelDebug
-	LevelInfo  = slog.LevelInfo
-	LevelWarn  = slog.LevelWarn
+	// LevelInfo is an info level.
+	LevelInfo = slog.LevelInfo
+	// LevelWarn is a warn level.
+	LevelWarn = slog.LevelWarn
+	// LevelError is an error level.
 	LevelError = slog.LevelError
+	// LevelFatal is a fatal level.
 	LevelFatal = slog.Level(12)
 )
 
+// AllLevels is a slice of all levels.
 var AllLevels = []Level{
 	LevelDebug,
 	LevelInfo,
@@ -45,7 +51,10 @@ func replaceLevelNames(groups []string, a slog.Attr) slog.Attr {
 	// Customize the name of the level key and the output string, including
 	// custom level values.
 	if a.Key == slog.LevelKey {
-		level := a.Value.Any().(slog.Level)
+		level, ok := a.Value.Any().(slog.Level)
+		if !ok {
+			return a
+		}
 
 		name, ok := levelNames[level]
 		if !ok {

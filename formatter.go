@@ -3,7 +3,6 @@ package logger
 import (
 	"io"
 	"log/slog"
-	"os"
 )
 
 const (
@@ -22,7 +21,7 @@ func makeFormatter(w io.Writer, format string, lvl Level, source bool, fn ...rep
 		builder = textFormatter()
 	}
 
-	return buildFormatter(builder, os.Stdout, lvl, source, fn)
+	return buildFormatter(builder, w, lvl, source, fn)
 }
 
 type replaceFn func(groups []string, a slog.Attr) slog.Attr
