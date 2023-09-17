@@ -11,7 +11,18 @@ import (
 var logInstance *slog.Logger
 
 func init() {
-	logInstance = slog.Default()
+	w := os.Stderr
+	lvl := LevelInfo
+
+	h := slog.NewTextHandler(w, &slog.HandlerOptions{
+		AddSource:   false,
+		Level:       lvl,
+		ReplaceAttr: replaceLevelNames,
+	})
+
+	l := slog.New(h)
+
+	logInstance = l
 }
 
 // Params holds logger specific params.
@@ -51,9 +62,6 @@ type Logger interface {
 	WithError(err error) Logger
 	WithField(key string, value interface{}) Logger
 	WithFields(fields Fields) Logger
-
-	Writer() io.WriteCloser
-	LogLevel() Level
 }
 
 func makeLogInstance(ctx context.Context, p Params) {
@@ -113,11 +121,13 @@ func (s slogWrapper) Error(msg string) {
 }
 
 func (s slogWrapper) Fatal(msg string) {
-	// TODO implement me
-	panic("implement me")
+	s.le.Log(context.Background(), LevelFatal, msg)
+
+	os.Exit(1)
 }
 
 func (s slogWrapper) WithError(err error) Logger {
+	s.le.With()
 	return newSlogWrapper(s.le.With("error", err))
 }
 
@@ -133,14 +143,4 @@ func (s slogWrapper) WithFields(fields Fields) Logger {
 	}
 
 	return newSlogWrapper(s.le.With(attrs...))
-}
-
-func (s slogWrapper) Writer() io.WriteCloser {
-	// TODO implement me
-	panic("implement me")
-}
-
-func (s slogWrapper) LogLevel() Level {
-	// TODO implement me
-	panic("implement me")
 }
