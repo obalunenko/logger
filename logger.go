@@ -39,12 +39,12 @@ type Params struct {
 
 // Init initiates logger and add format options.
 // Should be called only once, on start of app.
-func Init(ctx context.Context, p Params) {
+func Init(ctx context.Context, p Params) Logger {
 	if p.Writer == nil {
 		p.Writer = os.Stderr
 	}
 
-	makeLogInstance(ctx, p)
+	return makeLogInstance(ctx, p)
 }
 
 // Fields type, used to pass to `WithFields`.
@@ -64,7 +64,7 @@ type Logger interface {
 	WithFields(fields Fields) Logger
 }
 
-func makeLogInstance(ctx context.Context, p Params) {
+func makeLogInstance(ctx context.Context, p Params) Logger {
 	level, err := ParseLevel(p.Level)
 	if err != nil {
 		WithError(ctx, err).Error("unable to parse log level")
@@ -90,6 +90,8 @@ func makeLogInstance(ctx context.Context, p Params) {
 	}
 
 	WithField(ctx, "levels", strings.Join(levels, " ")).Debug("logging enabled")
+
+	return newSlogWrapper(logInstance)
 }
 
 var _ Logger = (*slogWrapper)(nil)
