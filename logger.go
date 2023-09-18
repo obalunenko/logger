@@ -71,13 +71,7 @@ func makeLogInstance(ctx context.Context, p Params) Logger {
 		level = LevelInfo
 	}
 
-	var out []io.Writer
-
-	out = append(out, os.Stdout)
-
-	w := io.MultiWriter(out...)
-
-	formatter := makeFormatter(w, p.Format, level, p.WithSource, replaceLevelNames)
+	formatter := makeFormatter(p.Writer, p.Format, level, p.WithSource, replaceLevelNames)
 
 	logInstance = slog.New(formatter)
 
