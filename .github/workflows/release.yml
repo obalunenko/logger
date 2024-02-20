@@ -13,7 +13,7 @@ jobs:
       max-parallel: 2
       matrix:
         os: [ 'ubuntu-22.04' ]
-        go: [ '1.21' ]
+        go-version: [1.22.x]
     runs-on: ${{ matrix.os }}
     name: Regression tests
     steps:
@@ -25,7 +25,7 @@ jobs:
       - name: Set up go
         uses: actions/setup-go@v5.0.0
         with:
-          go-version: ${{ matrix.go }}
+          go-version: ${{ matrix.go-version }}
 
       - run: |
           go version
@@ -62,7 +62,7 @@ jobs:
       max-parallel: 1
       matrix:
         os: [ 'ubuntu-22.04' ]
-        go: [ '1.21' ]
+        go-version: [1.22.x]
     runs-on: ${{ matrix.os }}
     name: Lint
     steps:
@@ -74,7 +74,7 @@ jobs:
       - name: Set up go
         uses: actions/setup-go@v5.0.0
         with:
-          go-version: ${{ matrix.go }}
+          go-version: ${{ matrix.go-version }}
 
       - run: |
           go version
@@ -115,7 +115,7 @@ jobs:
       max-parallel: 1
       matrix:
         os: [ 'ubuntu-22.04' ]
-        go: [ '1.21' ]
+        go-version: [1.22.x]
     runs-on: ${{ matrix.os }}
     name: Release
     steps:
@@ -127,7 +127,7 @@ jobs:
       - name: Set up go
         uses: actions/setup-go@v5.0.0
         with:
-          go-version: ${{ matrix.go }}
+          go-version: ${{ matrix.go-version }}
 
       - run: |
           go version
