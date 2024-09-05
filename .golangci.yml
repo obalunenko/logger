@@ -1,8 +1,11 @@
 linters:
   enable-all: true
   disable:
+    - gomnd
     - gochecknoglobals
     - paralleltest
+    - exportloopref
+    - execinquery
 
 linters-settings:
   errcheck:
@@ -21,7 +24,7 @@ linters-settings:
   gofmt:
     simplify: true
   govet:
-    check-shadowing: true
+    shadow: true
     enable-all: true
   golint:
     min-confidence: 0
@@ -36,11 +39,14 @@ linters-settings:
     min-occurrences: 2
   misspell:
     locale: US
-  gomnd:
-    settings:
-      mnd:
-        # the list of enabled checks, see https://github.com/tommy-muehle/go-mnd/#checks for description.
-        checks: argument,case,condition,operation,return
+  mnd:
+    # the list of enabled checks, see https://github.com/tommy-muehle/go-mnd/#checks for description.
+    checks:
+      - argument
+      - case
+      - condition
+      - operation
+      - return
   lll:
     # max line length, lines longer will be reported. Default is 120.
     # '\t' is counted as 1 character by default, and can be changed with the tab-width option
@@ -142,31 +148,18 @@ linters-settings:
       - docStub
       - rangeValCopy
       - yodaStyleExpr
-      - appendAssign
       - appendCombine
-      - caseOrder
-      - badCond
       - commentedOutCode
-      - commentFormatting
       - commentedOutImport
-      - dupArg
-      - dupBranchBody
-      - elseif
       - emptyStringTest
       - indexAlloc
       - initClause
       - weakCond
-      - deprecatedComment
-      - flagDeref
-      - flagName
       - hugeParam
-      - ifElseChain
       - nilValReturn
       - rangeExprCopy
       - ptrToRefParam
-      - underef
       - unnecessaryBlock
-      - valSwap
     settings: # settings passed to gocritic
       captLocal: # must be valid enabled check name
         paramsOnly: true
