@@ -13,7 +13,7 @@ jobs:
       max-parallel: 2
       matrix:
         os: [ 'ubuntu-22.04' ]
-        go-version: [1.22.x]
+        go-version: [1.23.x]
     runs-on: ${{ matrix.os }}
     name: Regression tests
     steps:
@@ -62,7 +62,7 @@ jobs:
       max-parallel: 1
       matrix:
         os: [ 'ubuntu-22.04' ]
-        go-version: [1.22.x]
+        go-version: [1.23.x]
     runs-on: ${{ matrix.os }}
     name: Lint
     steps:
@@ -115,7 +115,7 @@ jobs:
       max-parallel: 1
       matrix:
         os: [ 'ubuntu-22.04' ]
-        go-version: [1.22.x]
+        go-version: [1.23.x]
     runs-on: ${{ matrix.os }}
     name: Release
     steps:
