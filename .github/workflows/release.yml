@@ -23,7 +23,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up go
-        uses: actions/setup-go@v5.4.0
+        uses: actions/setup-go@v6.0.0
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -72,7 +72,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up go
-        uses: actions/setup-go@v5.4.0
+        uses: actions/setup-go@v6.0.0
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -125,7 +125,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up go
-        uses: actions/setup-go@v5.4.0
+        uses: actions/setup-go@v6.0.0
         with:
           go-version: ${{ matrix.go-version }}
 
