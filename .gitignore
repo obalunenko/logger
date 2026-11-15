@@ -17,3 +17,5 @@ dist/
 .vscode/
 coverage/
 .cover/
+
+report.xml

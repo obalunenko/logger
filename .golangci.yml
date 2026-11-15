@@ -1,188 +1,139 @@
-linters:
-  enable-all: true
-  disable:
-    - gomnd
-    - gochecknoglobals
-    - paralleltest
-    - exportloopref
-    - execinquery
-
-linters-settings:
-  errcheck:
-    # report about not checking of errors in type assetions: `a := b.(MyStruct)`;
-    # default is false: such cases aren't reported by default.
-    check-type-assertions: true
-
-    # report about assignment of errors to blank identifier: `num, _ := strconv.Atoi(numStr)`;
-    # default is false: such cases aren't reported by default.
-    check-blank: true
-
-  funlen:
-    lines: 60
-    statements: 40
-
-  gofmt:
-    simplify: true
-  govet:
-    shadow: true
-    enable-all: true
-  golint:
-    min-confidence: 0
-  gocyclo:
-    min-complexity: 10
-  maligned:
-    suggest-new: true
-  dupl:
-    threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 2
-  misspell:
-    locale: US
-  mnd:
-    # the list of enabled checks, see https://github.com/tommy-muehle/go-mnd/#checks for description.
-    checks:
-      - argument
-      - case
-      - condition
-      - operation
-      - return
-  lll:
-    # max line length, lines longer will be reported. Default is 120.
-    # '\t' is counted as 1 character by default, and can be changed with the tab-width option
-    line-length: 120
-    # tab width in spaces. Default to 1.
-    tab-width: 1
-  nakedret:
-    # make an issue if func has more lines of code than this setting and it has naked returns; default is 30
-    max-func-lines: 30
-  goimports:
-    local-prefixes: github.com/obalunenko/logger/
-  unparam:
-    algo: cha
-    check-exported: false
-  prealloc:
-    simple: true
-    range-loops: true # Report preallocation suggestions on range loops, true by default
-    for-loops: false # Report preallocation suggestions on for loops, false by default
-  godox:
-    # report any comments starting with keywords, this is useful for TODO or FIXME comments that
-    # might be left in the code accidentally and should be resolved before merging
-    keywords: # default keywords are TODO, BUG, and FIXME, these can be overwritten by this setting
-      - NOTE
-      - OPTIMIZE # marks code that should be optimized before merging
-      - HACK # marks hack-arounds that should be removed before merging
-      - TODO
-      - BUG
-      - FIXME
-    dogsled:
-      # checks assignments with too many blank identifiers; default is 2
-      max-blank-identifiers: 2
-
-    whitespace:
-      multi-if: false   # Enforces newlines (or comments) after every multi-line if statement
-      multi-func: false # Enforces newlines (or comments) after every multi-line function signature
-
-  wsl:
-    # Do strict checking when assigning from append (x = append(x, y)).
-    # If this is set to true - the append call must append either a variable
-    # assigned, called or used on the line above.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#strict-append
-    # Default: true
-    strict-append: true
-    # Allows assignments to be cuddled with variables used in calls on
-    # line above and calls to be cuddled with assignments of variables
-    # used in call on line above.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#allow-assign-and-call
-    # Default: true
-    allow-assign-and-call: true
-    # Allows assignments to be cuddled with anything.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#allow-assign-and-anything
-    # Default: false
-    allow-assign-and-anything: false
-    # Allows cuddling to assignments even if they span over multiple lines.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#allow-multiline-assign
-    # Default: true
-    allow-multiline-assign: true
-    # If the number of lines in a case block is equal to or lager than this number,
-    # the case *must* end white a newline.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#force-case-trailing-whitespace
-    # Default: 0
-    force-case-trailing-whitespace: 0
-    # Allow blocks to end with comments.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#allow-trailing-comment
-    # Default: false
-    allow-trailing-comment: false
-    # Allow multiple comments in the beginning of a block separated with newline.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#allow-separated-leading-comment
-    # Default: false
-    allow-separated-leading-comment: false
-    # Allow multiple var/declaration statements to be cuddled.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#allow-cuddle-declarations
-    # Default: false
-    allow-cuddle-declarations: false
-    # A list of call idents that everything can be cuddled with.
-    # Defaults: [ "Lock", "RLock" ]
-    allow-cuddle-with-calls: ["Foo", "Bar"]
-    # AllowCuddleWithRHS is a list of right hand side variables that is allowed
-    # to be cuddled with anything.
-    # Defaults: [ "Unlock", "RUnlock" ]
-    allow-cuddle-with-rhs: ["Foo", "Bar"]
-    # Causes an error when an If statement that checks an error variable doesn't
-    # cuddle with the assignment of that variable.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#force-err-cuddling
-    # Default: false
-    force-err-cuddling: false
-    # When force-err-cuddling is enabled this is a list of names
-    # used for error variables to check for in the conditional.
-    # Default: [ "err" ]
-    error-variable-names: ["err"]
-    # Causes an error if a short declaration (:=) cuddles with anything other than
-    # another short declaration.
-    # This logic overrides force-err-cuddling among others.
-    # https://github.com/bombsimon/wsl/blob/master/doc/configuration.md#force-short-decl-cuddling
-    # Default: false
-    force-short-decl-cuddling: false
-  gocritic:
-    enabled-checks:
-      - docStub
-      - rangeValCopy
-      - yodaStyleExpr
-      - appendCombine
-      - commentedOutCode
-      - commentedOutImport
-      - emptyStringTest
-      - indexAlloc
-      - initClause
-      - weakCond
-      - hugeParam
-      - nilValReturn
-      - rangeExprCopy
-      - ptrToRefParam
-      - unnecessaryBlock
-    settings: # settings passed to gocritic
-      captLocal: # must be valid enabled check name
-        paramsOnly: true
-      rangeValCopy:
-        sizeThreshold: 320
-      hugeParam:
-        sizeThreshold: 500
-      rangeExprCopy:
-        skipTestFuncs: true
-      underef:
-        skipRecvDeref: true
-
+version: "2"
 run:
   issues-exit-code: 0
   tests: true
-
-issues:
-  exclude-use-default: false
-  exclude-dirs:
-    - vendor
-  exclude-files:
-    - \.pb\.go$
-  exclude:
-    # for "public interface + private struct implementation" cases only!
-    - exported func * returns unexported type *, which can be annoying to use
-
+output:
+  formats:
+    text:
+      path: stdout
+    # Sonar reads this report (sonar-project.properties).
+    checkstyle:
+      path: report.xml
+linters:
+  default: all
+  disable:
+    - gochecknoglobals
+    - mnd
+    - paralleltest
+  settings:
+    dupl:
+      threshold: 100
+    errcheck:
+      check-type-assertions: true
+      check-blank: true
+    funlen:
+      lines: 60
+      statements: 40
+    goconst:
+      min-len: 2
+      min-occurrences: 2
+    gocritic:
+      enabled-checks:
+        - docStub
+        - rangeValCopy
+        - yodaStyleExpr
+        - appendCombine
+        - commentedOutCode
+        - commentedOutImport
+        - emptyStringTest
+        - indexAlloc
+        - initClause
+        - weakCond
+        - hugeParam
+        - nilValReturn
+        - rangeExprCopy
+        - ptrToRefParam
+        - unnecessaryBlock
+      settings:
+        captLocal:
+          paramsOnly: true
+        hugeParam:
+          sizeThreshold: 500
+        rangeExprCopy:
+          skipTestFuncs: true
+        rangeValCopy:
+          sizeThreshold: 320
+        underef:
+          skipRecvDeref: true
+    gocyclo:
+      min-complexity: 10
+    godox:
+      keywords:
+        - NOTE
+        - OPTIMIZE
+        - HACK
+        - TODO
+        - BUG
+        - FIXME
+    govet:
+      enable-all: true
+    lll:
+      line-length: 120
+      tab-width: 1
+    misspell:
+      locale: US
+    mnd:
+      checks:
+        - argument
+        - case
+        - condition
+        - operation
+        - return
+    nakedret:
+      max-func-lines: 30
+    prealloc:
+      simple: true
+      range-loops: true
+      for-loops: false
+    unparam:
+      check-exported: false
+    wsl:
+      strict-append: true
+      allow-assign-and-call: true
+      allow-assign-and-anything: false
+      allow-multiline-assign: true
+      force-case-trailing-whitespace: 0
+      allow-trailing-comment: false
+      allow-separated-leading-comment: false
+      allow-cuddle-declarations: false
+      allow-cuddle-with-calls:
+        - Foo
+        - Bar
+      allow-cuddle-with-rhs:
+        - Foo
+        - Bar
+      force-err-cuddling: false
+      error-variable-names:
+        - err
+      force-short-decl-cuddling: false
+  exclusions:
+    generated: lax
+    rules:
+      - path: (.+)\.go$
+        text: exported func * returns unexported type *, which can be annoying to use
+    paths:
+      - \.pb\.go$
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+    goimports:
+      local-prefixes:
+        - github.com/obalunenko/logger/
+  exclusions:
+    generated: lax
+    paths:
+      - \.pb\.go$
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$
