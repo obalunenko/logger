@@ -17,7 +17,6 @@ on:
       - '!**.*md'
       - '.github/workflows/**'
       - '!.github/workflows/readme-stars.yml'
-      - 'deployments/docker-compose/go-tools-docker-compose.yml'
   pull_request:
     types: [ opened, synchronize, reopened ]
     branches:
@@ -41,18 +40,18 @@ jobs:
       fail-fast: false
       max-parallel: 3
       matrix:
-        os: [ 'ubuntu-22.04' ]
+        os: [ 'ubuntu-24.04' ]
         go-version: [1.27.x]
     runs-on: ${{ matrix.os }}
     name: Build
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up go
-        uses: actions/setup-go@v5.4.0
+        uses: actions/setup-go@v7.0.0
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -61,24 +60,34 @@ jobs:
         shell: bash
 
       - name: Set up cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         env:
-          cache-name: cache-vendored-tools-${{ secrets.CACHE_VERSION }}
+          cache-name: cache-tools-${{ github.job }}-${{ secrets.CACHE_VERSION }}
         with:
           path: |
             ${{ env.GOBIN }}
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/tools/go.sum') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('go.sum', 'tools/*/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/tools/go.sum') }}
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+
+      # Dependabot bumps goreleaser in tools/goreleaser/go.mod; CI follows it.
+      - name: Get goreleaser version
+        id: goreleaser
+        run: |
+          echo "version=$(awk '$1 == "github.com/goreleaser/goreleaser/v2" { print $2 }' tools/goreleaser/go.mod)" >> "$GITHUB_OUTPUT"
+        shell: bash
 
       - name: Install GoReleaser
-        uses: goreleaser/goreleaser-action@v6
+        uses: goreleaser/goreleaser-action@a4f02ab5355a589de60d917a659ce617ed19b3de # v7.3.0
         with:
+          version: ${{ steps.goreleaser.outputs.version }}
           install-only: true
 
       - name: Check release
+        env:
+          GORELEASER_BIN: goreleaser
         run: |
           make check-releaser
         shell: bash
@@ -88,18 +97,18 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        os: [ 'ubuntu-22.04' ]
+        os: [ 'ubuntu-24.04' ]
         go-version: [1.27.x]
     runs-on: ${{ matrix.os }}
     name: Run Tests
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up go
-        uses: actions/setup-go@v5.4.0
+        uses: actions/setup-go@v7.0.0
         with:
           go-version: ${{ matrix.go-version }}
 
@@ -108,22 +117,17 @@ jobs:
         shell: bash
 
       - name: Set up cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         env:
-          cache-name: cache-vendored-tools-${{ secrets.CACHE_VERSION }}
+          cache-name: cache-tools-${{ github.job }}-${{ secrets.CACHE_VERSION }}
         with:
           path: |
             ${{ env.GOBIN }}
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/tools/go.sum') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('go.sum', 'tools/*/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/tools/go.sum') }}
-
-      - name: Install tools
-        run: |
-          make install-tools
-        shell: bash
+            ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Test
         run: |
@@ -135,18 +139,18 @@ jobs:
       fail-fast: false
       max-parallel: 2
       matrix:
-        os: [ 'ubuntu-22.04' ]
+        os: [ 'ubuntu-24.04' ]
         go-version: [1.27.x]
     runs-on: ${{ matrix.os }}
     name: Run linters
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up go
-        uses: actions/setup-go@v5.4.0
+        uses: actions/setup-go@v7.0.0
         with:
           go-version: ${{ matrix.go-version }}
       - run: |
@@ -159,27 +163,30 @@ jobs:
         shell: bash
 
       - name: Set up cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         env:
-          cache-name: cache-vendored-tools-${{ secrets.CACHE_VERSION }}
+          cache-name: cache-tools-${{ github.job }}-${{ secrets.CACHE_VERSION }}
         with:
           path: |
             ${{ env.GOBIN }}
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/tools/go.sum') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('go.sum', 'tools/*/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/tools/go.sum') }}
+            ${{ runner.os }}-build-${{ env.cache-name }}-
 
-      - name: Install tools
+      # Dependabot bumps golangci-lint in tools/golangci-lint/go.mod; CI follows it.
+      - name: Get golangci-lint version
+        id: golangci-lint
         run: |
-          make install-tools
+          echo "version=$(awk '$1 == "github.com/golangci/golangci-lint/v2" { print $2 }' tools/golangci-lint/go.mod)" >> "$GITHUB_OUTPUT"
         shell: bash
 
       - name: Lint
-        run: |
-          make lint-pipeline
-        shell: bash
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: ${{ steps.golangci-lint.outputs.version }}
+          args: --config .golangci.pipe.yml
 
   reports:
     needs: [ testing, linting, build ]
@@ -187,18 +194,18 @@ jobs:
       fail-fast: true
       max-parallel: 1
       matrix:
-        os: [ 'ubuntu-22.04' ]
+        os: [ 'ubuntu-24.04' ]
         go-version: [1.27.x]
     runs-on: ${{ matrix.os }}
     name: Quality reports
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Set up go
-        uses: actions/setup-go@v5.4.0
+        uses: actions/setup-go@v7.0.0
         with:
           go-version: ${{ matrix.go-version }}
       - run: |
@@ -206,32 +213,35 @@ jobs:
         shell: bash
 
       - name: Set up cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         env:
-          cache-name: cache-vendored-tools-${{ secrets.CACHE_VERSION }}
+          cache-name: cache-tools-${{ github.job }}-${{ secrets.CACHE_VERSION }}
         with:
           path: |
             ${{ env.GOBIN }}
             ~/.cache/go-build
             ~/go/pkg/mod
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/tools/go.sum') }}
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('go.sum', 'tools/*/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/tools/go.sum') }}
-
-      - name: Install tools
-        run: |
-          make install-tools
-        shell: bash
+            ${{ runner.os }}-build-${{ env.cache-name }}-
 
       - name: Prepare test coverage and reports
         run: |
           make prepare-cover-report
         shell: bash
 
-      - name: Prepare lint report
+      - name: Get golangci-lint version
+        id: golangci-lint
         run: |
-          make lint-sonar
+          echo "version=$(awk '$1 == "github.com/golangci/golangci-lint/v2" { print $2 }' tools/golangci-lint/go.mod)" >> "$GITHUB_OUTPUT"
         shell: bash
+
+      # .golangci.yml writes the checkstyle report for Sonar to report.xml.
+      - name: Prepare lint report
+        uses: golangci/golangci-lint-action@ba0d7d2ec06a0ea1cb5fa41b2e4a3ab91d21278a # v9.3.0
+        with:
+          version: ${{ steps.golangci-lint.outputs.version }}
+          args: --config .golangci.yml
 
       - name: Cover report upload
         if: success()
@@ -240,7 +250,7 @@ jobs:
         shell: bash
 
       - name: SonarCloud report upload
-        uses: sonarsource/sonarcloud-github-action@v5.0
+        uses: SonarSource/sonarqube-scan-action@e805d875275f728fac1885b413934be6d7c63f65 # v8.4
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

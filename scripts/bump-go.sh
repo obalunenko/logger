@@ -52,13 +52,13 @@ function bump_golang_docker_images() {
 
 }
 
-# it will replace the 'go ${old_go_version}' with 'go ${new_go_version}' in the given go.mod file
+# it will replace the go directive with 'go ${new_go_version}' in the given go.mod file. The whole version is
+# replaced, so tool modules that need a newer patch (tools/goreleaser) follow the root module too.
 function bump_mod_file() {
   local go_mod_file="${1}"
-  local old_go_version="${2}"
   local new_go_version="${3}"
 
-    sed "s/^go ${old_go_version}/go ${new_go_version}/g" ${go_mod_file} > ${go_mod_file}.tmp
+    sed -E "s/^go [0-9]+\.[0-9]+(\.[0-9]+)?$/go ${new_go_version}/" ${go_mod_file} > ${go_mod_file}.tmp
     mv ${go_mod_file}.tmp ${go_mod_file}
 
 }
